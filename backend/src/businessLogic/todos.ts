@@ -1,5 +1,4 @@
-import {createTodoItem, deleteTodoItem, getTodoItem, getTodosByUserId, updateTodoItem, updateAttachmentUrl as updateAttachmentUrlInDB} from './todosAcess'
-import { getAttachmentUrl, getUploadUrl } from './attachmentUtils';
+import { TodosDataLayer } from '../dataLayer/todosDataLayer'
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
@@ -11,11 +10,13 @@ import {TodoUpdate} from "../models/TodoUpdate";
 // TODO: Implement businessLogic
 const logger = createLogger('businessLogic-todos')
 
+const todosDataLayer = new TodosDataLayer();
+
 export async function getTodos(
     userId: string
 ): Promise<TodoItem[] | CustomError> {
     try {
-        const todos = await getTodosByUserId(userId)
+        const todos = await todosDataLayer.getTodosByUserId(userId)
         logger.info(`Todos of user: ${userId}`, JSON.stringify(todos))
         return todos
     } catch (error) {
@@ -41,7 +42,7 @@ export async function createTodo(
     }
 
     try {
-        await createTodoItem(newItem)
+        await todosDataLayer.createTodoItem(newItem)
         logger.info(`Todo ${todoId} for user ${userId}:`, {
             userId,
             todoId,
@@ -61,7 +62,7 @@ export async function updateTodo(
     updateTodoRequest: UpdateTodoRequest
 ): Promise<void | CustomError> {
     try {
-        const item = await getTodoItem(todoId)
+        const item = await todosDataLayer.getTodoItem(todoId)
 
         if (!item) throw new CustomError('Item not found', 404)
 
@@ -69,7 +70,7 @@ export async function updateTodo(
             throw new CustomError('User is not authorized to update item', 403)
         }
 
-        await updateTodoItem(todoId, updateTodoRequest as TodoUpdate)
+        await todosDataLayer.updateTodoItem(todoId, updateTodoRequest as TodoUpdate)
         logger.info(`Updating todo ${todoId} for user ${userId}:`, {
             userId,
             todoId,
@@ -90,7 +91,7 @@ export async function deleteTodo(
     todoId: string
 ): Promise<void | CustomError> {
     try {
-        const item = await getTodoItem(todoId)
+        const item = await todosDataLayer.getTodoItem(todoId)
 
         if (!item) throw new CustomError('Item not found', 404)
 
@@ -98,7 +99,7 @@ export async function deleteTodo(
             throw new CustomError('User is not authorized to delete item', 403)
         }
 
-        await deleteTodoItem(todoId)
+        await todosDataLayer.deleteTodoItem(todoId)
 
         logger.info(`Deleting todo ${todoId} for user ${userId}:`, {
             userId,
@@ -120,9 +121,9 @@ export async function updateAttachmentUrl(
     attachmentId: string
 ): Promise<void | CustomError> {
     try {
-        const attachmentUrl = await getAttachmentUrl(attachmentId)
+        const attachmentUrl = todosDataLayer.getAttachmentUrl(attachmentId)
 
-        const item = await getTodoItem(todoId)
+        const item = await todosDataLayer.getTodoItem(todoId)
 
         if (!item) throw new CustomError('Item not found', 404)
 
@@ -130,7 +131,7 @@ export async function updateAttachmentUrl(
             throw new CustomError('User is not authorized to update item', 403)
         }
 
-        await updateAttachmentUrlInDB(todoId, attachmentUrl)
+        await todosDataLayer.updateAttachmentUrl(todoId, attachmentUrl)
 
         logger.info(
             `Updating todo ${todoId} with attachment URL ${attachmentUrl}`,
@@ -151,7 +152,7 @@ export async function updateAttachmentUrl(
 
 export function generateSignedUrl(attachmentId: string): string | CustomError {
     try {
-        const uploadUrl = getUploadUrl(attachmentId)
+        const uploadUrl = todosDataLayer.getUploadUrl(attachmentId)
         logger.info(`Presigned Url is generated: ${uploadUrl}`)
 
         return uploadUrl

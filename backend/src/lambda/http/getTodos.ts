@@ -5,7 +5,7 @@ import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
 import {createLogger} from '../../utils/logger'
 import CustomError from "../../utils/CustomError";
-import {getTodos} from "../../helpers/todos";
+import {getTodos} from "../../businessLogic/todos";
 
 // TODO: Get all TODO items for a current user
 const logger = createLogger('getTodos')

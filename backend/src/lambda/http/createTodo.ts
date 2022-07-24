@@ -4,7 +4,7 @@ import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
 import {CreateTodoRequest} from '../../requests/CreateTodoRequest'
 import {createLogger} from "../../utils/logger";
-import {createTodo} from "../../helpers/todos";
+import {createTodo} from "../../businessLogic/todos";
 import CustomError from "../../utils/CustomError";
 
 const logger = createLogger('createTodo')
