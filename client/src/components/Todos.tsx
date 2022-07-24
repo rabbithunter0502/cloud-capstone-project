@@ -11,7 +11,7 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader, TextArea, Form
 } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
@@ -26,18 +26,27 @@ interface TodosProps {
 interface TodosState {
   todos: Todo[]
   newTodoName: string
-  loadingTodos: boolean
+  loadingTodos: boolean,
+  description: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    description: ''
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.value) {
+      return;
+    }
     this.setState({ newTodoName: event.target.value })
+  }
+
+  handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ description: event.target.value })
   }
 
   onEditButtonClick = (todoId: string) => {
@@ -45,15 +54,20 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+    if (!this.state.newTodoName) {
+      return;
+    }
     try {
       const dueDate = this.calculateDueDate()
       const newTodo = await createTodo(this.props.auth.getIdToken(), {
         name: this.state.newTodoName,
+        description: this.state.description,
         dueDate
       })
       this.setState({
         todos: [...this.state.todos, newTodo],
-        newTodoName: ''
+        newTodoName: '',
+        description: '',
       })
     } catch {
       alert('Todo creation failed')
@@ -77,7 +91,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
-        done: !todo.done
+        done: !todo.done,
+        description: `${todo.description} test` || ''
       })
       this.setState({
         todos: update(this.state.todos, {
@@ -104,8 +119,6 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   render() {
     return (
       <div>
-        <Header as="h1">TODOs</Header>
-
         {this.renderCreateTodoInput()}
 
         {this.renderTodos()}
@@ -130,6 +143,12 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
             placeholder="To change the world..."
             onChange={this.handleNameChange}
           />
+          <Form>
+            <h4>Description</h4>
+            <TextArea placeholder='Tell us more'
+                      onChange={this.handleDescriptionChange}
+                      style={{ marginBottom: "15px" }} />
+          </Form>
         </Grid.Column>
         <Grid.Column width={16}>
           <Divider />
@@ -161,15 +180,26 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       <Grid padded>
         {this.state.todos.map((todo, pos) => {
           return (
-            <Grid.Row key={todo.todoId}>
+            <Grid.Row key={todo.todoId} style={{
+              background: "#fbfbfbc4",
+              border: "1px solid rgba(34,36,38,.15)",
+              padding: "15px",
+              marginBottom: "10px",
+              boxShadow: "0 1px 2px 0 rgb(34 36 38 / 15%)",
+              borderRadius: "5px" }}>
               <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
                   onChange={() => this.onTodoCheck(pos)}
                   checked={todo.done}
                 />
               </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+              <Grid.Column width={3} verticalAlign="middle">
+                <h4>
+                  {todo.name}
+                </h4>
+              </Grid.Column>
+              <Grid.Column width={7} verticalAlign="middle">
+                {todo.description}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
                 {todo.dueDate}

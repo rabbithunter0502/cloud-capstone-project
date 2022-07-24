@@ -11,12 +11,16 @@
     },
     "done": {
       "type": "boolean"
+    },
+    "description": {
+      "type": "string"
     }
   },
   "required": [
     "name",
     "dueDate",
-    "done"
+    "done",
+    "description"
   ],
   "additionalProperties": false
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link, Route, Router, Switch } from 'react-router-dom'
-import { Grid, Menu, Segment } from 'semantic-ui-react'
+import { Grid, Header, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
 import { EditTodo } from './components/EditTodo'
@@ -40,6 +40,7 @@ export default class App extends Component<AppProps, AppState> {
           <Grid container stackable verticalAlign="middle">
             <Grid.Row>
               <Grid.Column width={16}>
+                <Header as="h1">Remind Note</Header>
                 <Router history={this.props.history}>
                   {this.generateMenu()}
 

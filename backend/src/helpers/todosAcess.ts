@@ -77,14 +77,15 @@ export async function updateTodoItem(
             Key: {
                 todoId
             },
-            UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done',
+            UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done, description = :description',
             ExpressionAttributeNames: {
                 '#name': 'name'
             },
             ExpressionAttributeValues: {
                 ':name': todoUpdate.name,
                 ':dueDate': todoUpdate.dueDate,
-                ':done': todoUpdate.done
+                ':done': todoUpdate.done,
+                ':description': todoUpdate.description
             }
         })
         .promise()
